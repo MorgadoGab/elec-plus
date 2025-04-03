@@ -1,5 +1,6 @@
 media/
 .idea/
+__pycache__
 *.wav
 *.aup3
 *.png
