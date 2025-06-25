@@ -6,11 +6,21 @@ from manim_fonts import *
 config.background_color = BLACK
 config["background_color"] = BLACK
 
+fancy_font = "Playwrite CL"
+std_font_size = 20
+
+class I_Arrow(VGroup):
+    def __init__(self,start,end, text, place, tip_shape=StealthTip, direction_text=RIGHT, color=WHITE, color_text=WHITE, **kwargs: any):
+        super().__init__(**kwargs)
+        self.place = place
+        self.arrow = Arrow(start=start, end=end, tip_shape=tip_shape, stroke_width=0, buff=0, color=color).move_to(self.place).set_length(0.001)
+        self.text = MathTex(text,color=color_text).next_to(self.arrow, direction=direction_text)
+        self.add(self.arrow, self.text)
 
 class Generique_Ex(Scene):
 
     def construct(self):
-        text_logo = Text("Elec", font_size=80, font="Playwrite MX")
+        text_logo = Text("Elec", font_size=80, font=fancy_font)
 
         image_logo = VGroup(Arc(angle=PI, color=YELLOW_B),
                             Cross(scale_factor=0.2).rotate(45 * DEGREES).shift(UP / 2.5).set_color(YELLOW)
@@ -20,7 +30,7 @@ class Generique_Ex(Scene):
         intro = AnimationGroup(Write(text_logo),
                                Create(image_logo)
                                )
-        texte = Text("Résolution d'exercice", font_size=48, font="Playwrite MX", color=TEAL).shift(DOWN * 2)
+        texte = Text("Résolution d'exercice", font_size=48, font=fancy_font, color=TEAL).shift(DOWN * 2)
         # self.add(Circle(0.1,RED,fill_opacity=1))
         self.play(AnimationGroup(intro, Write(texte), lag_ratio=0.25), run_time=1.5)
         self.wait(2)
@@ -34,8 +44,8 @@ class Exercice(Scene):
         frame = FullScreenRectangle()
         self.add(frame)
 
-        titre = Text("Transformation Thévenin - Norton", font="Playwrite MX", color=TEAL_A, font_size=36)
-        exercice = Text("Exercice", font="Playwrite MX", color=TEAL, font_size=20).to_corner(UL)
+        titre = Text("Transformation Thévenin - Norton", font=fancy_font, color=TEAL_A, font_size=std_font_size*1.5)
+        exercice = Text("Exercice", font=fancy_font, color=TEAL, font_size=std_font_size).to_corner(UL)
         self.play(Write(titre))
         self.play(Write(exercice), Create(Underline(exercice, color=TEAL, stroke_width=2)),
                   titre.animate.scale_to_fit_height(exercice.height).next_to(exercice, DOWN, aligned_edge=LEFT))
@@ -121,11 +131,11 @@ class Exercice(Scene):
 
         correction = VGroup()
 
-        rappel = Text("Rappels", font="Playwrite MX", color=TEAL, font_size=20).next_to(split_line.get_top(),
+        rappel = Text("Rappels", font=fancy_font, color=TEAL, font_size=std_font_size).next_to(split_line.get_top(),
                                                                                         direction=RIGHT,
                                                                                         aligned_edge=UP)
         underline_rappel = Underline(rappel, color=TEAL, stroke_width=2, buff=-0.05)
-        th_de_thevenin = Text("Théorème de Thévenin", font="Playwrite MX", color=TEAL_A, font_size=14).next_to(rappel,
+        th_de_thevenin = Text("Théorème de Thévenin", font=fancy_font, color=TEAL_A, font_size=std_font_size*0.7).next_to(rappel,
                                                                                                                direction=DOWN,
                                                                                                                aligned_edge=LEFT,
                                                                                                                buff=0.05)
@@ -251,7 +261,7 @@ class Exercice(Scene):
         self.play(correction.animate.shift(UP * 3))
         self.wait(2)
 
-        th_de_norton = Text("Théorème de Norton", font="Playwrite MX", color=TEAL_A, font_size=14).next_to(
+        th_de_norton = Text("Théorème de Norton", font=fancy_font, color=TEAL_A, font_size=std_font_size*0.7).next_to(
             circuit_ouvert_full, direction=DOWN, buff=0.05).align_to(th_de_thevenin, LEFT)
         correction.add(th_de_norton)
         self.play(Write(th_de_norton))
@@ -332,23 +342,19 @@ class Exercice2(Scene):
         frame = FullScreenRectangle()
         self.add(frame)
 
-        titre = Text("Transformation Thévenin - Norton", font="Playwrite MX", color=TEAL_A, font_size=36)
-        exercice = Text("Exercice", font="Playwrite MX", color=TEAL, font_size=20).to_corner(UL)
-        self.play(Write(titre))
-        self.play(Write(exercice), Create(Underline(exercice, color=TEAL, stroke_width=2)),
-                  titre.animate.scale_to_fit_height(exercice.height).next_to(exercice, DOWN, aligned_edge=LEFT))
-        self.wait(2)
+        exercice = Text("Exercice", font=fancy_font, color=TEAL, font_size=std_font_size).to_corner(UL)
+        titre = Text("Transformation Thévenin - Norton", font=fancy_font, color=TEAL_A, font_size=std_font_size*1.5).scale_to_fit_height(exercice.height).next_to(exercice, DOWN, aligned_edge=LEFT)
+        self.add(exercice, Underline(exercice, color=TEAL, stroke_width=2), titre)
 
         split_line = Line(start=UP, end=DOWN, stroke_width=5, color=TEAL_A).stretch_to_fit_height(
             config["frame_height"] * 0.9).shift(LEFT)
-        self.play(GrowFromEdge(split_line, DOWN))
+        self.add(split_line)
 
         page1 = Rectangle(color=BLUE).stretch_to_fit_height(frame.height).stretch_to_fit_width(
             Line(start=frame.get_left(), end=split_line.get_center(), buff=0).width).to_edge(LEFT, buff=0)
         page2 = Rectangle(color=RED).stretch_to_fit_height(frame.height).stretch_to_fit_width(
             frame.width - page1.width).to_edge(RIGHT, buff=0)
         # self.add(page1,page2)
-        self.wait(2)
 
         tex_template = TexTemplate()
         tex_template.add_to_preamble(r"\usepackage[siunitx, RPvoltages, european]{circuitikz}")
@@ -414,24 +420,141 @@ class Exercice2(Scene):
         #                                                                                               aligned_edge=LEFT).shift(
         #     RIGHT)
 
-        self.play(Create(circuit), Write(circuit_text), Write(consigne))
-        self.wait(2)
+        # self.play(Create(circuit), Write(circuit_text), Write(consigne))
+        self.add(circuit,circuit_text,consigne)
 
+        self.wait()
         correction = VGroup()
-        register_font("..\PlaywriteMX-VariableFont_wght.ttf")
-        resolution = Text("Résolution de l'exercice", font='Playwrite MX', color=MAROON, font_size=20).next_to(
+        resolution = Text("Résolution de l'exercice", font=fancy_font, color=MAROON_B, font_size=std_font_size).next_to(
                 split_line.get_top(),
                 direction=RIGHT,
                 aligned_edge=UP)
-        underline_resolution = Underline(resolution, color=MAROON, stroke_width=2)
-        # th_de_thevenin = Text("Théorème de Thévenin", font="Playwrite MX", color=TEAL_A, font_size=14).next_to(rappel,
-        #                                                                                                        direction=DOWN,
-        #                                                                                                        aligned_edge=LEFT,
-        #                                                                                                        buff=0.05)
-        correction.add(resolution, underline_resolution)
-        self.play(Write(resolution), Create(underline_resolution))
+        underline_resolution = Underline(resolution, color=MAROON_B, stroke_width=2)
+
+        res_text = Text("Equivalence Thévenin-Norton", font=fancy_font, color=MAROON_A, font_size=std_font_size*0.7).next_to(
+            resolution,
+            direction=DOWN,
+            aligned_edge = LEFT
+        )
+
+        texte_rth = Tex(
+            r"{37em}On remplace les générateurs de tension par des générateurs de courant équivalents. ",
+            font_size=20,
+            tex_environment="minipage",
+        ).next_to(res_text, DOWN, aligned_edge=LEFT)
+
+        correction.add(resolution, underline_resolution, res_text)
+        self.play(Write(resolution), Create(underline_resolution), Write(res_text))
         self.wait(2)
 
+        circuit_res = circuit.copy()
+        circuit_res.remove(circuit_res[-2]).next_to(texte_rth,DOWN,aligned_edge=LEFT)
+        circuit_res_texte = circuit_text.copy()
+        circuit_res_texte.remove(*circuit_res_texte[-2:])
+        circuit_res_texte.next_to(circuit_res[6].get_center(),submobject_to_align=circuit_res_texte[3][0].set_color(MAROON_A),direction=UP,buff=0.5)
+        circuit_res_full = VGroup()
+        circuit_res_full.add(circuit_res,circuit_res_texte).next_to(texte_rth.get_center(),DOWN)
+
+        A = VGroup(Dot(circuit_res[-1].get_right(), 0.05 * circuit_res[-1].width, color=MAROON_A),
+        Tex("A", font_size=R3.font_size).next_to(circuit_res[-1].get_right(), RIGHT))
+        B = VGroup( Dot(circuit_res[-2].get_right(), 0.05 * circuit_res[-1].width, color=MAROON_A),
+        Tex("B", font_size=R3.font_size).next_to(circuit_res[-2].get_right(), RIGHT))
+        circuit_res.add(A,B)
+
+        self.play(Write(texte_rth),Create(circuit_res),Write(circuit_res_texte))
+        self.wait()
+
+        arrow = Arrow(start=UP,end=DOWN,color=MAROON_B,max_tip_length_to_length_ratio=0.15).next_to(circuit_res,DOWN,buff=-0.2).scale(0.5)
+
+        self.play(GrowArrow(arrow))
+        self.wait()
+
+        circuit_eq = MathTex(
+            r"\draw (0,0) to [current source] (0,4);",  # E1      0
+            r"\draw (1,0) to [R] (1,4);",  # R1    1
+            r"\draw (0,4) to [short] (2,4);",
+            r"\draw (2,4) to [R] (2,0);",  # R2    3
+            r"\draw (2,0) to [short] (0,0);",
+            r"\draw (2,4) to [short] (4,4);",
+            r"\draw (3.5,4) to [current source] (3.5,0);",  # I2    6
+            r"\draw (4,0) to [short] (2,0);",
+            r"\draw (4,0) to [short] (6,0);",
+            r"\draw (5.5,0) to [current source] (5.5,4);",  # E3    9
+            r"\draw (6.5,0) to [R] (6.5,4);",  # R3    10
+            r"\draw (6,4) to [short] (4,4);",
+            r"\draw (6,0) to [short] (8,0);",
+            r"\draw (8,0) to [short] (8,4);",  # R4    13
+            r"\draw (8,4) to [short] (6,4);",
+            tex_environment="circuitikz",
+            tex_template=tex_template,
+            stroke_color=WHITE,
+            stroke_width=2,
+            fill_color=WHITE
+        )
+
+        R1 = MathTex("R_1",color=MAROON_B).move_to(circuit_eq[1])
+        # I1 = VGroup()
+        # I1.arrow = Arrow(start=DOWN, end=UP, tip_shape=StealthTip, stroke_width=0, color=MAROON_A, buff=0).move_to(
+        #     circuit_eq[0].get_center() + UP * 1.5).set_length(0.001)
+        # I1.text = MathTex("I_1=\dfrac{E_1}{R_1}",color=MAROON_B).next_to(I1.arrow, LEFT)
+        # I1.add(I1.text,I1.arrow)
+        I1=I_Arrow(start=DOWN,end=UP,text="I_1=\dfrac{E_1}{R_1}",place=circuit_eq[0].get_center() + UP * 1.5,direction_text=LEFT,color=MAROON_B,color_text=MAROON_B)
+        R2 = MathTex("R_2").next_to(circuit_eq[3], RIGHT)
+        I2 = I_Arrow(start=DOWN, end=UP, color=MAROON_B, text="I_2", direction_text=LEFT, place=circuit_eq[6].get_center() + UP * 1.5)
+        I3 = I_Arrow(start=DOWN, end=UP, color=MAROON_B, color_text=MAROON_B, text="I_3=\dfrac{E_3}{R_3}", direction_text=LEFT, place=circuit_eq[9].get_center() + UP * 1.5)
+        R3 = MathTex("R_3",color=MAROON_B).move_to(circuit_eq[10], LEFT)
+        # R4 = MathTex("R_4").next_to(circuit[13], RIGHT)
+        # I4 = VGroup()
+        # I4.arrow = Arrow(start=UP, end=DOWN, tip_shape=StealthTip, stroke_width=0, color=TEAL_A, buff=0).move_to(
+        #     circuit[13].get_center() + UP * 1.5).set_length(0.001)
+        # I4.text = MathTex("I_4").next_to(I4.arrow, LEFT)
+        # I4.add(I4.arrow, I4.text)
+        I4 = I_Arrow(start=UP, end=DOWN, text="I_4", color=MAROON_A, color_text=MAROON_A,
+                     place=circuit_eq[-2].get_center())
+
+        circuit_eq_text = VGroup()
+        circuit_eq_text.add(R1, I1, R2, I2, I3, R3, I4)
+        circuit_eq_full = VGroup(circuit_eq,circuit_eq_text).scale_to_fit_height(circuit_res.height).next_to(arrow,DOWN)
+
+        while abs(circuit_eq[0].get_x()-circuit_res[0].get_x()) > 0.01 :
+            direc = (circuit_eq[0].get_x()-circuit_res[0].get_x())*(-0.01)
+            circuit_eq_full.shift([direc,0,0])
+
+        self.play(Create(circuit_eq),Write(circuit_eq_text))
+        self.wait()
+
+        correction=VGroup()
+        for i in self.mobjects :
+            #print(i)
+            try :
+                if i.get_x() > 0 :
+                    correction.add(i)
+            except :
+                pass
+
+        self.play(correction.animate.shift(UP*5))
+        self.wait()
+
+        I4_eq = MathTex(r"I_4",r"= I_1 + I_2 + I_3").next_to(circuit_eq,DOWN).scale(0.75)
+        self.play(Write(I4_eq))
+        self.wait()
+
+        self.play(Indicate(VGroup(circuit_eq[-2],I4)))
+        self.wait(2)
+
+        I4_eq2= MathTex(r"= \dfrac{E_1}{R_1} + I_2 + \dfrac{E_3}{R_3}").next_to(I4_eq, DOWN).scale(0.75).align_to(I4_eq[1],LEFT)
+
+        self.play(Write(I4_eq2))
+        self.wait(2)
+
+        AN = Tex(r"Application numérique :").next_to(I4_eq2, DOWN).scale(0.5).align_to(page2,LEFT).shift(RIGHT*0.15)
+        I4_AN = MathTex(r"= \dfrac{10}{60}+0,\! 1+\dfrac{7}{30}").next_to(AN, RIGHT).scale(0.75).align_to(I4_eq[1],LEFT)
+        I4_AN2 = MathTex(r"I_4 = 0,\! 5 \textrm{A}").next_to(I4_AN, DOWN).scale(0.75).set_x(page2.get_center()[0]).shift(DOWN*0.5)
+        entoure = Rectangle(color = TEAL_B, height = I4_AN2.get_height()+0.1, width = I4_AN2.get_width()+0.1).move_to(I4_AN2)
+        self.play(Write(AN))
+        self.play(Write(I4_AN))
+        self.play(Write(I4_AN2), Create(entoure))
+        self.wait(2)
 
 class CArrayElement(VMobject):
     def __init__(self, value, index, **kwargs: any):
