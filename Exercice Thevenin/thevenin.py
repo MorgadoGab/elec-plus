@@ -465,8 +465,9 @@ class Exercice2(Scene):
         self.wait()
 
         arrow = Arrow(start=UP,end=DOWN,color=MAROON_B,max_tip_length_to_length_ratio=0.15).next_to(circuit_res,DOWN,buff=-0.2).scale(0.5)
+        ino = MathTex(r"I_{\textrm{no}}=\dfrac{E_{\textrm{th}}}{R_{\textrm{th}}}",color=MAROON_A).scale_to_fit_height(arrow.height).next_to(arrow,RIGHT)
 
-        self.play(GrowArrow(arrow))
+        self.play(GrowArrow(arrow),Write(ino))
         self.wait()
 
         circuit_eq = MathTex(
@@ -509,11 +510,11 @@ class Exercice2(Scene):
         #     circuit[13].get_center() + UP * 1.5).set_length(0.001)
         # I4.text = MathTex("I_4").next_to(I4.arrow, LEFT)
         # I4.add(I4.arrow, I4.text)
-        I4 = I_Arrow(start=UP, end=DOWN, text="I_4", color=MAROON_A, color_text=MAROON_A,
+        INO = I_Arrow(start=UP, end=DOWN, text="I_{\\textrm{no}}", color=MAROON_A, color_text=MAROON_A,
                      place=circuit_eq[-2].get_center())
 
         circuit_eq_text = VGroup()
-        circuit_eq_text.add(R1, I1, R2, I2, I3, R3, I4)
+        circuit_eq_text.add(R1, I1, R2, I2, I3, R3, INO)
         circuit_eq_full = VGroup(circuit_eq,circuit_eq_text).scale_to_fit_height(circuit_res.height).next_to(arrow,DOWN)
 
         while abs(circuit_eq[0].get_x()-circuit_res[0].get_x()) > 0.01 :
@@ -535,26 +536,108 @@ class Exercice2(Scene):
         self.play(correction.animate.shift(UP*5))
         self.wait()
 
-        I4_eq = MathTex(r"I_4",r"= I_1 + I_2 + I_3").next_to(circuit_eq,DOWN).scale(0.75)
-        self.play(Write(I4_eq))
+        INO_eq = MathTex(r"I_{\textrm{no}}",r"= I_1 + I_2 + I_3").next_to(circuit_eq,DOWN).scale(0.75)
+        self.play(Write(INO_eq))
         self.wait()
 
-        self.play(Indicate(VGroup(circuit_eq[-2],I4)))
+        INO_eq2= MathTex(r"= \dfrac{E_1}{R_1} + I_2 + \dfrac{E_3}{R_3}").next_to(INO_eq, DOWN).scale(0.75).align_to(INO_eq[1],LEFT)
+
+        self.play(Write(INO_eq2))
         self.wait(2)
 
-        I4_eq2= MathTex(r"= \dfrac{E_1}{R_1} + I_2 + \dfrac{E_3}{R_3}").next_to(I4_eq, DOWN).scale(0.75).align_to(I4_eq[1],LEFT)
-
-        self.play(Write(I4_eq2))
-        self.wait(2)
-
-        AN = Tex(r"Application numérique :").next_to(I4_eq2, DOWN).scale(0.5).align_to(page2,LEFT).shift(RIGHT*0.15)
-        I4_AN = MathTex(r"= \dfrac{10}{60}+0,\! 1+\dfrac{7}{30}").next_to(AN, RIGHT).scale(0.75).align_to(I4_eq[1],LEFT)
-        I4_AN2 = MathTex(r"I_4 = 0,\! 5 \textrm{A}").next_to(I4_AN, DOWN).scale(0.75).set_x(page2.get_center()[0]).shift(DOWN*0.5)
-        entoure = Rectangle(color = TEAL_B, height = I4_AN2.get_height()+0.1, width = I4_AN2.get_width()+0.1).move_to(I4_AN2)
+        AN = Tex(r"Application numérique :").next_to(INO_eq2, DOWN).scale(0.5).align_to(page2,LEFT).shift(RIGHT*0.15)
+        INO_AN = MathTex(r"= \dfrac{10}{60}+0,\! 1+\dfrac{7}{30}").next_to(AN, RIGHT).scale(0.75).align_to(INO_eq[1],LEFT)
+        INO_AN2 = MathTex(r"I_{\textrm{no}} = 0,\! 5\, \textrm{A}").next_to(INO_AN, DOWN).scale(0.75).set_x(page2.get_center()[0]).shift(DOWN*0.5)
+        entoure = Rectangle(color = TEAL_B, height = INO_AN2.get_height()+0.1, width = INO_AN2.get_width()+0.1).move_to(INO_AN2)
         self.play(Write(AN))
-        self.play(Write(I4_AN))
-        self.play(Write(I4_AN2), Create(entoure))
+        self.play(Write(INO_AN))
+        self.play(Write(INO_AN2), Create(entoure))
         self.wait(2)
+
+        correction=VGroup()
+        for i in self.mobjects :
+            #print(i)
+            try :
+                if i.get_x() > 0 :
+                    correction.add(i)
+            except :
+                pass
+
+        self.play(correction.animate.shift(UP*5))
+        self.wait()
+
+        RNO_eq = MathTex(r"R_{\textrm{no}}",r"=R_1 \parallel R_2 \parallel R_3").next_to(entoure,DOWN).scale(0.75)
+        RNO_eq2 = MathTex(r"=\dfrac{R_1R_2R_3}{R_1R_2+R_1R_3+R_2R_3}").next_to(RNO_eq, DOWN).scale(0.75).align_to(RNO_eq[1],LEFT)
+
+        self.play(Write(RNO_eq))
+        self.play(Write(RNO_eq2))
+        self.wait(2)
+
+        AN = Tex(r"Application numérique :").next_to(RNO_eq2, DOWN*1.2).scale(0.5).align_to(page2,LEFT).shift(RIGHT*0.15)
+        RNO_AN = MathTex(r"= \dfrac{60 \cdot 100 \cdot 30}{60 \cdot 100 + 60 \cdot 30 + 100 \cdot 30}").next_to(AN, RIGHT).scale(0.75).align_to(RNO_eq[1],LEFT)
+        RNO_AN2 = MathTex(r"R_{\textrm{no}} = 16,\! 7\, \mathrm{\Omega}").next_to(RNO_AN, DOWN).scale(0.75).set_x(page2.get_center()[0]).shift(DOWN*0.5)
+        entoure = Rectangle(color = TEAL_B, height = RNO_AN2.get_height()+0.1, width = RNO_AN2.get_width()+0.1).move_to(RNO_AN2)
+
+        self.play(Write(AN))
+        self.play(Write(RNO_AN))
+        self.play(Write(RNO_AN2), Create(entoure))
+        self.wait(2)
+
+        correction=VGroup()
+        for i in self.mobjects :
+            #print(i)
+            try :
+                if i.get_x() > 0 :
+                    correction.add(i)
+            except :
+                pass
+
+        self.play(correction.animate.shift(UP*5))
+        self.wait()
+
+        circuit_eq = MathTex(
+            r"\draw (0,0) to [current source] (0,4);",  # I1      0
+            r"\draw (2,0) to [R] (2,4);",  # Rno   1
+            r"\draw (0,4) to [short] (4,4);",
+            r"\draw (4,4) to [R] (4,0);",  # R4    3
+            r"\draw (0,0) to [short] (4,0);",
+            tex_environment="circuitikz",
+            tex_template=tex_template,
+            stroke_color=WHITE,
+            stroke_width=2,
+            fill_color=WHITE
+        )
+
+        Rno = MathTex(r"R_{\textrm{no}}",color=MAROON_B).next_to(circuit_eq[1],RIGHT)
+        R4 = MathTex("R_4").next_to(circuit_eq[3], RIGHT)
+        Ino = I_Arrow(start=DOWN, end=UP, text="I_{\\textrm{no}}", place=circuit_eq[0].get_center() + UP * 1.5,
+                     direction_text=LEFT, color=MAROON_B, color_text=MAROON_B)
+        I4 = I_Arrow(start=UP, end=DOWN, text="I_4", color=MAROON_A, color_text=MAROON_A,
+                     place=circuit_eq[-2].get_center() + UP*1.5)
+
+        circuit_eq_text = VGroup()
+        circuit_eq_text.add(Rno, R4, Ino, I4)
+        circuit_eq_full = VGroup(circuit_eq,circuit_eq_text).scale_to_fit_height(circuit_res.height).next_to(entoure,DOWN)
+
+        # while abs(circuit_eq[0].get_x()-circuit_res[0].get_x()) > 0.01 :
+        #     direc = (circuit_eq[0].get_x()-circuit_res[0].get_x())*(-0.01)
+        #     circuit_eq_full.shift([direc,0,0])
+
+        self.play(Create(circuit_eq),Write(circuit_eq_text))
+        self.wait(2)
+
+        I4_eq = MathTex(r"I_4",r"=\dfrac{R_{\textrm{no}}}{R_{\textrm{no}}+R_4}I_{\textrm{no}}").next_to(circuit_eq,DOWN).scale(0.75)
+
+        AN = Tex(r"Application numérique :").next_to(I4_eq, DOWN*1.5).scale(0.5).align_to(page2,LEFT).shift(RIGHT*0.15)
+        I4_AN = MathTex(r"= \dfrac{16,\! 7}{16,\! 7 + 40}\cdot 0,\! 5").next_to(AN, RIGHT).scale(0.75).align_to(I4_eq[1],LEFT)
+        I4_AN2 = MathTex(r"I_4 = 0,\! 15 \, \textrm{A}").next_to(I4_AN, DOWN).scale(0.75).set_x(page2.get_center()[0]).shift(DOWN*0.5)
+        entoure = Rectangle(color = TEAL_B, height = I4_AN2.get_height()+0.1, width = I4_AN2.get_width()+0.1).move_to(I4_AN2)
+
+        self.play(Write(I4_eq))
+        self.play(Write(AN), Write(I4_AN))
+        self.play(Write(I4_AN2), Create(entoure))
+        self.wait(4)
+
 
 class CArrayElement(VMobject):
     def __init__(self, value, index, **kwargs: any):
