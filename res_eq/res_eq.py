@@ -172,7 +172,6 @@ class ResEq(Scene):
         self.play(Write(circuit1), run_time=2)
         self.play(Write(res_names), run_time=1)
         self.wait()
-        aaa
 
         fil_rouge = Line(start=circuit1[0].get_left(), end=get_leftres(circuit1[0])+0.05*RIGHT, color=ROUGE_EFREI)
         borne_rouge = Dot(fil_rouge.get_start()+0.075*RIGHT, radius=0.1, color=ROUGE_EFREI)
