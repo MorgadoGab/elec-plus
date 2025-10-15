@@ -147,6 +147,10 @@ class ResEq(Scene):
         titre2 = Tex("Exemple 1 :").to_corner(UL)
         self.play(Write(titre2))
 
+        frame = FullScreenRectangle()
+        self.play(Create(frame), run_time=1)
+        self.wait()
+
         tex_template = TexTemplate()
         tex_template.add_to_preamble(r"\usepackage[siunitx, RPvoltages, european]{circuitikz}")
         circuit1 = MathTex(
@@ -195,9 +199,16 @@ class ResEq(Scene):
         self.wait()
 
         encadre = SurroundingRectangle(VGroup(circuit1[2], circuit1[3], res_names[1], res_names[2]), color=ORANGE_EFREI, buff=0.2)
-        r23 = MathTex(r"R_{23}").next_to(encadre, RIGHT, buff=0.2).set_color(ORANGE_EFREI)
-        self.play(Create(encadre), Write(r23), run_time=1)
+        eq23 = MathTex(r"\dfrac{R_2R_3}{R_2+R_3}").next_to(encadre, RIGHT, buff=0.2).set_color(ORANGE_EFREI)
+        self.play(Create(encadre), run_time=1)
         self.wait()
+
+        self.play(Write(eq23), run_time=1)
+        self.wait()
+
+        # eq23 = MathTex(r"= \dfrac{R_2R_3}{R_2+R_3}").next_to(r23, RIGHT, buff=0).set_color(ORANGE_EFREI).scale(0.7)
+        # self.play(Write(eq23), run_time=1)
+        # self.wait()
 
         circuit_23 = MathTex(
             r"\draw (0,0) to [R, *-] (2,0);",
@@ -210,10 +221,70 @@ class ResEq(Scene):
             fill_color=WHITE
         ).align_to(circuit1,LEFT).set_z_index(-1)
 
+        r23 = MathTex(r"R_{23}").set_color(WHITE)
+        r23.add_updater(lambda m: m.next_to(encadre, RIGHT, buff=0.2))
+        eq23.generate_target()
+        eq23.target = r23
+
         fil_violet.add(Line(start=circuit_23[2].get_left(), end=circuit_23[2].get_right(), color=VIOLET_EFREI))
         self.add(circuit_23, fil_violet[4])
         encadre.generate_target()
-        encadre.target = Rectangle(width=circuit_23[1].width, height=circuit_23[1].height*0.56, color=ORANGE_EFREI).move_to(circuit_23[1].get_center())
-        self.play(MoveToTarget(encadre), run_time = 1)
-        self.play(FadeOut(circuit1), FadeOut(fil_bleu[1], fil_bleu[3], fil_violet[0], fil_violet[2]), FadeOut(encadre), FadeOut(res_names[1:]), r23.animate.next_to(circuit_23,RIGHT,buff=0.2).set_color(WHITE), run_time=1)
+        encadre.target = Rectangle(width=circuit_23[1].width, height=circuit_23[1].height*0.56, color=WHITE).move_to(circuit_23[1].get_center())
+
+        self.play(MoveToTarget(encadre), FadeOut(circuit1), FadeOut(fil_bleu[1], fil_bleu[3], fil_violet[0], fil_violet[2]), FadeOut(res_names[1:]), FadeOut(arrow), MoveToTarget(eq23), run_time=1)
+        self.wait()
+
+        encadre2 = SurroundingRectangle(VGroup(circuit_23[0], circuit_23[1], res_names[0], r23), color=ORANGE_EFREI, buff=0).shift(0.25*(UP+RIGHT)).scale(0.9)
+        eq123 = MathTex(r"R_\textrm{eq}", r"= R_1 + R_{23}").next_to(encadre2, RIGHT, buff=0.2).set_color(ORANGE_EFREI)
+
+        self.play(Create(encadre2), run_time=1)
+        self.wait()
+
+        self.play(Write(eq123), run_time=1)
+        self.wait()
+
+        circuit_123 = MathTex(
+            r"\draw (0,0) to [short, *-] (2,0);",
+            r"\draw (2,0) to [R] (2,-2);",
+            r"\draw (2,-2) to [short, -*] (0,-2);",
+            tex_environment="circuitikz",
+            tex_template=tex_template,
+            stroke_color=WHITE,
+            stroke_width=3,
+            fill_color=WHITE
+        ).align_to(circuit_23,LEFT).align_to(circuit_23,DOWN).set_z_index(-1)
+
+        encadre2.generate_target()
+        encadre2.target = Rectangle(width=circuit_123[1].width, height=circuit_123[1].height*0.56, color=WHITE).move_to(circuit_123[1].get_center())
+        eq123[0].generate_target()
+        eq123[0].target = eq123[0].copy().set_color(WHITE).next_to(circuit_123, RIGHT, buff=0.2)
+
+        # r23.remove_updater(r23.get_updaters())
+
+        fil_rouge_2 = Line(start=circuit_123[0].get_left(), end=circuit_123[0].get_right(), color=ROUGE_EFREI)
+
+        self.play(FadeOut(circuit_23, res_names[0], eq23, eq123[1:], encadre),
+                  MoveToTarget(encadre2),
+                  VGroup(fil_bleu[0],fil_bleu[2]).animate.set_color(ROUGE_EFREI),
+                  FadeIn(circuit_123[1]),
+                  MoveToTarget(eq123[0]),
+                  Create(fil_rouge_2),
+                  run_time=1)
+        self.wait()
+
+        eqf = MathTex(r"= R_1 + \dfrac{R_2R_3}{R_2+R_3}").set_color(WHITE).next_to(eq123[0], RIGHT, buff=0.2)
+
+        self.play(Write(eqf), run_time=1)
+        self.wait()
+
+        eqf.add(eq123[0])
+        eq_encadre = SurroundingRectangle(eqf, color=ORANGE_EFREI, buff=0.1)
+
+        self.play(Create(eq_encadre), run_time=1)
+        self.wait(2)
+        self.play(VGroup(eqf,eq_encadre).animate.move_to(DOWN*2.5),
+                  FadeOut(circuit_123[1], fil_rouge_2, fil_violet[1], fil_violet[3:], encadre2, fil_rouge, fil_bleu[0], fil_bleu[2]),
+                  FadeIn(circuit1, res_names),
+                    run_time=1
+                  )
         self.wait()
