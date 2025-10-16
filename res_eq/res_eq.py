@@ -436,11 +436,54 @@ class ResEq2(Scene):
         self.wait()
 
         encadre45.generate_target()
-        encadre45.target = Rectangle(width=circuit1[4].width, height=circuit1[4].height*0.56, color=WHITE).move_to(circuit1[4].get_center())
+        encadre45.target = Rectangle(width=circuit1[4].width, height=circuit1[4].height*0.27, color=WHITE, stroke_width=0).move_to(circuit1[4].get_center())
         eq45.generate_target()
         eq45.target = MathTex(r"R_{45}").set_color(WHITE).next_to(encadre45.target, RIGHT, buff=0.2).scale(0.8)
 
-        self.play(MoveToTarget(encadre45), MoveToTarget(eq45), FadeOut(circuit1[6]), FadeOut(res_names[3], res_names[4]), run_time=1)
+        circuit2 = MathTex(
+            r"\draw (0,0) to [short, *-] (1,0);",
+            r"\draw (1,0) to [R] (1,-2);",  #R1
+            r"\draw (1,-2) to [R] (1,-4);",  #R2
+            r"\draw (1,0) to [R] (3,0);", #R3
+            r"\draw (3,0) to [R] (3,-4);", #R45
+            r"\draw (3,-4) to [short, -*] (0,-4);",
+            tex_environment="circuitikz",
+            tex_template=tex_template,
+            stroke_color=WHITE,
+            stroke_width=3,
+            fill_color=WHITE
+        ).scale(0.7).align_to(circuit1,LEFT).set_z_index(-1)
+
+        fil_bleu.add(Line(start=get_rightres(circuit1[3]), end=circuit1[4].get_top(), color=BLEU_CLAIR_EFREI))
+        fil_mauve.add(Line(start=circuit1[7].get_left(), end=circuit1[4].get_bottom(), color=VIOLET_EFREI))
+
+        self.remove(circuit1)
+        self.add(circuit2, fil_bleu[-1], fil_mauve[-1])
+        self.play(MoveToTarget(encadre45), MoveToTarget(eq45), FadeOut(circuit1[6]), FadeOut(res_names[3], res_names[4], fil_bleu[0], fil_bleu[2], fil_mauve[0], fil_mauve[3]), run_time=1)
+        self.remove(encadre45)
+        fil_bleu.remove(fil_bleu[0], fil_bleu[2])
+        fil_mauve.remove(fil_mauve[0], fil_mauve[3])
+
         self.wait()
+
+        passing_flash_fil_bleu = AnimationGroup(
+            ShowPassingFlash(fil_bleu[1].copy().set_stroke(width=5).set_color(WHITE),time_width=2),
+            ShowPassingFlash(fil_bleu[0].copy().set_stroke(width=5).set_color(WHITE), time_width=2),
+            lag_ratio=0.5,
+            rate_func=linear
+        )
+        self.play(passing_flash_fil_bleu, rate_func=smooth)
+        self.wait()
+
+        encadre345 = SurroundingRectangle(VGroup(circuit2[3], circuit2[4], res_names[2], eq45), color=ORANGE_EFREI, buff=0.1).shift(0.25*(UP+RIGHT)).scale(0.9)
+        eq345 = MathTex(r"R_3 + R_{45}").next_to(encadre345, RIGHT, buff=0.2).set_color(ORANGE_EFREI).scale(0.8)
+
+        self.play(Create(encadre345), run_time=1)
+        self.wait()
+        self.play(Write(eq345), run_time=1)
+        self.wait()
+
+
+
 
 
