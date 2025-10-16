@@ -14,6 +14,7 @@ VIOLET_EFREI = "#e945ff"
 BLEU_MOYEN_EFREI = "#3653a0"
 ORANGE_EFREI = "#e7873b"
 ROUGE_EFREI = "#dd5555"
+VERT_EFREI = "#63f763"
 
 class Generique(Scene):
 
@@ -173,8 +174,7 @@ class ResEq(Scene):
         )
 
 
-        self.play(Write(circuit1), run_time=2)
-        self.play(Write(res_names), run_time=1)
+        self.play(Write(circuit1), Write(res_names), run_time=2)
         self.wait()
 
         fil_rouge = Line(start=circuit1[0].get_left(), end=get_leftres(circuit1[0])+0.05*RIGHT, color=ROUGE_EFREI)
@@ -196,6 +196,30 @@ class ResEq(Scene):
 
         arrow = DashedLine(start=circuit1.get_corner(UR)+UP, end=circuit1.get_corner(UL)+UP, color=YELLOW, stroke_width=6, tip_length=0.3, dash_length=0.1).add_tip(tip_shape=StealthTip, tip_length=0.3)
         self.play(GrowFromEdge(arrow,RIGHT), run_time=1)
+        self.wait()
+
+        passing_flash_bleu = AnimationGroup(
+            ShowPassingFlash(fil_bleu[0].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+            AnimationGroup(ShowPassingFlash(fil_bleu[1].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+                            ShowPassingFlash(fil_bleu[2].copy().set_stroke(width=5).set_color(WHITE), time_width=2),
+                           rate_func=linear
+                           ),
+            ShowPassingFlash(fil_bleu[3].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+            lag_ratio=0.5,
+            rate_func=linear
+        )
+
+        passing_flash_violet = AnimationGroup(
+            ShowPassingFlash(fil_violet[0].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+            ShowPassingFlash(fil_violet[1].copy().set_stroke(width=5).set_color(WHITE), time_width=1, reverse_rate_function=smooth),
+            ShowPassingFlash(fil_violet[2].copy().set_stroke(width=5).set_color(WHITE), time_width=1, reverse_rate_function=smooth),
+            lag_ratio=0.25,
+            rate_func=linear
+        )
+
+        # self.play(ShowPassingFlash(fil_violet.copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+        #           ShowPassingFlash(fil_bleu.copy().set_stroke(width=5).set_color(WHITE), time_width=1))
+        self.play(passing_flash_bleu, passing_flash_violet, rate_func=smooth, run_time=2)
         self.wait()
 
         encadre = SurroundingRectangle(VGroup(circuit1[2], circuit1[3], res_names[1], res_names[2]), color=ORANGE_EFREI, buff=0.2)
@@ -232,6 +256,16 @@ class ResEq(Scene):
         encadre.target = Rectangle(width=circuit_23[1].width, height=circuit_23[1].height*0.56, color=WHITE).move_to(circuit_23[1].get_center())
 
         self.play(MoveToTarget(encadre), FadeOut(circuit1), FadeOut(fil_bleu[1], fil_bleu[3], fil_violet[0], fil_violet[2]), FadeOut(res_names[1:]), FadeOut(arrow), MoveToTarget(eq23), run_time=1)
+        self.wait()
+
+        # self.play(ShowPassingFlash(VGroup(fil_bleu[0],fil_bleu[2]).copy().set_stroke(width=5).set_color(WHITE),time_width=1))
+        passing_flash_fil_bleu = AnimationGroup(
+            ShowPassingFlash(fil_bleu[0].copy().set_stroke(width=5).set_color(WHITE),time_width=2),
+            ShowPassingFlash(fil_bleu[2].copy().set_stroke(width=5).set_color(WHITE), time_width=2),
+            lag_ratio=0.5,
+            rate_func=linear
+        )
+        self.play(passing_flash_fil_bleu, rate_func=smooth)
         self.wait()
 
         encadre2 = SurroundingRectangle(VGroup(circuit_23[0], circuit_23[1], res_names[0], r23), color=ORANGE_EFREI, buff=0).shift(0.25*(UP+RIGHT)).scale(0.9)
@@ -288,3 +322,125 @@ class ResEq(Scene):
                     run_time=1
                   )
         self.wait()
+
+
+class ResEq2(Scene):
+
+    def construct(self):
+
+        def get_leftres(circuit):
+            return circuit.get_left() + circuit.width / 4.55 * RIGHT
+
+        def get_rightres(circuit):
+            return circuit.get_right() + circuit.width / 4.75 * LEFT
+
+        def get_topres(circuit):
+            return circuit.get_top() + circuit.height / 4.6 * DOWN
+
+        def get_bottomres(circuit):
+            return circuit.get_bottom() + circuit.height / 4.6 * UP
+
+
+        titre2 = Tex("Exemple 2 :").to_corner(UL)
+        self.play(Write(titre2))
+
+        frame = FullScreenRectangle()
+        self.play(Create(frame), run_time=1)
+        self.wait()
+
+        tex_template = TexTemplate()
+        tex_template.add_to_preamble(r"\usepackage[siunitx, RPvoltages, european]{circuitikz}")
+        circuit1 = MathTex(
+            r"\draw (0,0) to [short, *-] (1,0);",
+            r"\draw (1,0) to [R] (1,-2);",  #R1
+            r"\draw (1,-2) to [R] (1,-4);",  #R2
+            r"\draw (1,0) to [R] (3,0);", #R3
+            r"\draw (3,0) to [R] (3,-4);", #R4
+            r"\draw (3,0) to [short] (4,0);",
+            r"\draw (4,0) to [R] (4,-4);", #R5
+            r"\draw (4,-4) to [short, -*] (0,-4);",
+            tex_environment="circuitikz",
+            tex_template=tex_template,
+            stroke_color=WHITE,
+            stroke_width=3,
+            fill_color=WHITE
+        ).scale(0.7)
+
+        res_names = VGroup(
+            MathTex(r"R_1").next_to(circuit1[1], LEFT, buff=0.2),
+            MathTex(r"R_2").next_to(circuit1[2], LEFT, buff=0.2),
+            MathTex(r"R_3").next_to(circuit1[3], UP, buff=0.2),
+            MathTex(r"R_4").next_to(circuit1[4], LEFT, buff=0.2),
+            MathTex(r"R_5").next_to(circuit1[6], RIGHT, buff=0.2)
+        )
+
+        self.play(Write(circuit1), Write(res_names), run_time=2)
+        self.wait()
+
+        fil_rouge = VGroup(
+            Line(start=circuit1[0].get_left(), end=get_leftres(circuit1[3]), color=ROUGE_EFREI),
+            Line(start=circuit1[1].get_top(), end=get_topres(circuit1[1]), color=ROUGE_EFREI),
+            Dot(circuit1[0].get_left()+0.075*RIGHT, radius=0.1, color=ROUGE_EFREI)
+        )
+
+        fil_bleu = VGroup(
+            Line(start=get_rightres(circuit1[3]), end=circuit1[5].get_right(), color=BLEU_CLAIR_EFREI),
+            Line(start=circuit1[4].get_top(), end=get_topres(circuit1[4])+0.55*DOWN, color=BLEU_CLAIR_EFREI),
+            Line(start=circuit1[6].get_top(), end=get_topres(circuit1[6])+0.55*DOWN, color=BLEU_CLAIR_EFREI)
+        )
+
+        fil_mauve = VGroup(
+            Line(start=circuit1[7].get_left(), end=circuit1[7].get_right(), color=VIOLET_EFREI),
+            Line(start=get_bottomres(circuit1[2]), end=circuit1[2].get_bottom(), color=VIOLET_EFREI),
+            Line(start=get_bottomres(circuit1[4])+0.55*UP, end=circuit1[4].get_bottom(), color=VIOLET_EFREI),
+            Line(start=get_bottomres(circuit1[6])+0.55*UP, end=circuit1[6].get_bottom(), color=VIOLET_EFREI),
+            Dot(circuit1[7].get_left()+0.075*RIGHT, radius=0.1, color=VIOLET_EFREI)
+        )
+
+        fil_vert = Line(start=get_bottomres(circuit1[1]), end=get_topres(circuit1[2]), color=VERT_EFREI)
+
+        self.play(FadeIn(fil_rouge, fil_bleu, fil_mauve, fil_vert), run_time=1)
+        self.wait()
+
+        arrow = DashedLine(start=circuit1.get_corner(UR)+UP, end=circuit1.get_corner(UL)+UP, color=YELLOW, stroke_width=6, tip_length=0.3, dash_length=0.1).add_tip(tip_shape=StealthTip, tip_length=0.3)
+        self.play(GrowFromEdge(arrow,RIGHT), run_time=1)
+        self.wait()
+
+        passing_flash_bleu = AnimationGroup(
+            ShowPassingFlash(fil_bleu[0].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+            ShowPassingFlash(fil_bleu[1].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+            ShowPassingFlash(fil_bleu[2].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+            lag_ratio=0.25,
+            rate_func=linear
+        )
+
+        passing_flash_mauve = AnimationGroup(
+            ShowPassingFlash(fil_mauve[0].copy().set_stroke(width=5).set_color(WHITE), time_width=1),
+            # ShowPassingFlash(fil_mauve[1].copy().set_stroke(width=5).set_color(WHITE), time_width=1, reverse_rate_function=linear),
+            ShowPassingFlash(fil_mauve[2].copy().set_stroke(width=5).set_color(WHITE), time_width=1, reverse_rate_function=linear),
+            ShowPassingFlash(fil_mauve[3].copy().set_stroke(width=5).set_color(WHITE), time_width=1, reverse_rate_function=linear),
+            lag_ratio=0.2,
+            rate_func=linear
+        )
+
+        self.play(passing_flash_bleu, passing_flash_mauve, rate_func=smooth, run_time=2)
+        self.wait()
+
+        encadre45 = SurroundingRectangle(VGroup(circuit1[4], circuit1[6], res_names[3], res_names[4]), color=ORANGE_EFREI, buff=0.2).stretch_to_fit_height(circuit1[4].height*0.8)
+        eq45 = MathTex(r"\dfrac{R_4R_5}{R_4+R_5}").next_to(encadre45, RIGHT, buff=0.2).set_color(ORANGE_EFREI).scale(0.8)
+
+        self.play(Create(encadre45), run_time=1)
+        self.wait()
+
+        self.play(Write(eq45), run_time=1)
+        self.wait()
+
+        encadre45.generate_target()
+        encadre45.target = Rectangle(width=circuit1[4].width, height=circuit1[4].height*0.56, color=WHITE).move_to(circuit1[4].get_center())
+        eq45.generate_target()
+        eq45.target = MathTex(r"R_{45}").set_color(WHITE).next_to(encadre45.target, RIGHT, buff=0.2).scale(0.8)
+
+        self.play(MoveToTarget(encadre45), MoveToTarget(eq45), FadeOut(circuit1[6]), FadeOut(res_names[3], res_names[4]), run_time=1)
+        self.wait()
+
+
